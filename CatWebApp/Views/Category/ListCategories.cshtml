@@ -1,0 +1,15 @@
+﻿@model List<CategoryViewModel>
+
+@{ ViewBag.Title = "Categories";
+}
+
+@{
+    foreach (var category in Model)
+    {
+        <div class="card mb-3">
+            <div class="card-header">
+                @category.Name
+            </div>
+        </div>
+    }
+}

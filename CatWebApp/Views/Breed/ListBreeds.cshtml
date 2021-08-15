@@ -1,0 +1,18 @@
+﻿@model List<BreedViewModel>
+
+@{ ViewBag.Title = "Breeds";
+}
+
+@{
+    foreach (var breed in Model)
+    {
+        <div class="card mb-3">
+            <div class="card-header">
+                @breed.Name
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">@breed.Temperament</h5>
+            </div>
+        </div>
+    }
+}

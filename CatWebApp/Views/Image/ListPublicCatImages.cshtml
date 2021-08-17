@@ -1,26 +1,79 @@
-﻿@model List<ImageViewModel>
+﻿@model ListPublicCatImagesModel
 
-@{ 
+@{
     ViewBag.Title = "Public Cat Images";
     int counter = 0;
 }
 
+
 <div class="container">
-    <div class="row">
-        @foreach (var image in Model)
-        {
-            if (counter != 0 && counter % 3 == 0)
-            {
-            @:</div>
-            @:<div class="row my-4">
-            }
-
-            <div class="col-md-4">
-                @Html.Hidden("imageId", image.Id)
-                <img src="@image.Url" class="img-fluid" alt="Responsive image">
-            </div>
-
-            counter++;
-        }
-    </div>
+    <form class="row g-4 mb-3" id="filterForm" asp-controller="Image" asp-action="FilterImages" method="post">
+        <div class="col-auto">
+            <label for="breedSelect">Breed</label>
+            <select id="breedSelect" class="form-control" asp-for="BreedFilter">
+                <option selected>Any...</option>
+                @foreach (var breed in ViewBag.Breeds)
+                {
+                    <option value="@breed.Id">@breed.Name</option>
+                }
+            </select>
+        </div>
+        <div class="col-auto">
+            <label for="categorySelect">Category</label>
+            <select id="categorySelect" class="form-control" asp-for="CategoryFilter">
+                <option selected>Any...</option>
+                @foreach (var category in ViewBag.Categories)
+                {
+                    <option value="@category.Id">@category.Name</option>
+                }
+            </select>
+        </div>
+        <div class="col-auto">
+            <label for="amountSelect">Amount</label>
+            <select id="amountSelect" class="form-control" asp-for="AmountFilter">
+                @for (int i = 1; i < 11; i++)
+                {
+                    int value = i * 10;
+                    if (value == Model.AmountFilter)
+                    {
+                        <option selected>@value</option>
+                    }
+                    else
+                    {
+                        <option>@value</option>
+                    }
+                }
+            </select>
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-success">Search</button>
+        </div>
+    </form>
 </div>
+
+@if (Model.CatImages.Any())
+{
+    <div class="container">
+        <div class="row">
+            @foreach (var image in Model.CatImages)
+            {
+                if (counter != 0 && counter % 3 == 0)
+                {
+                @:</div>
+                @:<div class="row my-4">
+                }
+
+                <div class="col-md-4">
+                    @Html.Hidden("imageId", image.Id)
+                    <img src="@image.Url" class="img-fluid" alt="Responsive image">
+                </div>
+
+                counter++;
+            }
+        </div>
+    </div>
+}
+else
+{
+    <h5 class="card-title">No cat images returned from search</h5>
+}

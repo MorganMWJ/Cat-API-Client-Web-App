@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using CatWebApp.Models;
 using CatWebApp.Services;
@@ -19,14 +21,63 @@ namespace CatWebApp.Controllers
         }
 
         [Route("images")]
-        public async Task<IActionResult> ListPublicCatImages()
+        public async Task<IActionResult> ListPublicCatImages(string breedId = null, int? categoryId = null, int? amount = null)
         {
-            List<ImageViewModel> catImages = await _catClient.GetPublicImagesAsync();
-            //List<BreedViewModel> breeds = await _catClient.GetBreedsAsync();
-            //ViewBag.Breeds = breeds;
-            //List<CategoryViewModel> categories = await _catClient.GetCategoriesAsync();
-            //ViewBag.Categories = categories;
-            return View(catImages);
+            if (amount == null)
+            {
+                /* Default to 50 cats */
+                amount = 50;
+            }
+
+            List<ImageViewModel> catImages = new List<ImageViewModel>();
+            if (breedId == null && categoryId == null)
+            {
+                catImages = await _catClient.GetPublicImagesAsync((int)amount);
+            }
+            else if (breedId == null && categoryId != null)
+            {
+                catImages = await _catClient.GetPublicImagesAsync((int)categoryId, (int)amount);
+            }
+            else if (breedId != null && categoryId == null)
+            {
+                catImages = await _catClient.GetPublicImagesAsync(breedId, (int)amount);
+            }
+            else if (breedId != null && categoryId != null)
+            {
+                catImages = await _catClient.GetPublicImagesAsync(breedId, (int)categoryId, (int)amount);
+            }
+
+            /* Get Breeds for user to filter by breed */
+            List<BreedViewModel> breeds = await _catClient.GetBreedsAsync();
+            ViewBag.Breeds = breeds;
+
+            /* Get Categories for user to filter by category */
+            List<CategoryViewModel> categories = await _catClient.GetCategoriesAsync();
+            ViewBag.Categories = categories;
+
+            ListPublicCatImagesModel model = new ListPublicCatImagesModel();
+            model.CatImages = catImages;
+            if (breedId != null)
+                model.BreedFilter = breedId;
+            if (categoryId != null)
+                model.CategoryFilter = (int)categoryId;
+            model.AmountFilter = (int)amount;
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> FilterImages(ListPublicCatImagesModel model)
+        {
+            if (model.BreedFilter.Equals("Any..."))
+            {
+                model.BreedFilter = null;
+            }
+            if (model.CategoryFilter.Equals("Any..."))
+            {
+                model.CategoryFilter = null;
+            }
+            return RedirectToAction("ListPublicCatImages", new { breedId = model.BreedFilter, categoryId = model.CategoryFilter, amount = model.AmountFilter });
         }
 
         [Route("images/uploaded")]
@@ -44,30 +95,50 @@ namespace CatWebApp.Controllers
         }
 
         // GET: Image/Create
-        public ActionResult Create()
+        public async Task<IActionResult> ImageUpload()
         {
-            return View();
+            return View(new UploadFileModel());
         }
 
         // POST: Image/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public async Task<IActionResult> ImageUpload(UploadFileModel model)
         {
-            try
+            byte[] data;
+            ByteArrayContent bytes;
+            MultipartFormDataContent multiContent;
+            if (model.ImageFile == null)
             {
-                // TODO: Add insert logic here
+                ViewBag.ErrorMessage = "Please upload a file";
+                return View(model);
+            }
+            else
+            {
 
-                return RedirectToAction(nameof(ListUploadedCatImages));
+                using (var br = new BinaryReader(model.ImageFile.OpenReadStream()))
+                    data = br.ReadBytes((int)model.ImageFile.OpenReadStream().Length);
+
+                bytes = new ByteArrayContent(data);
+
+
+                multiContent = new MultipartFormDataContent();
+
+                multiContent.Add(bytes, "file", model.ImageFile.FileName);
+                HttpResponseMessage response = await _catClient.UploadImageAsync(multiContent);
+                if (!response.IsSuccessStatusCode)
+                {
+                    ViewBag.ErrorMessage = $"Invalid format or content on file uploaded. {response.StatusCode} - {response.ReasonPhrase}";
+                    return View(model);
+                }
+
             }
-            catch
-            {
-                return View();
-            }
+
+            return RedirectToAction(nameof(ListUploadedCatImages));
         }
 
         // GET: Image/Delete/5
-        public ActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
             return View();
         }

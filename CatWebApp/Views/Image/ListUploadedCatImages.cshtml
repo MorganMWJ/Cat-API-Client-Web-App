@@ -1,0 +1,39 @@
+﻿@model List<ImageViewModel>
+
+@{
+    ViewBag.Title = "Uploaded Cat Images";
+    int counter = 0;
+}
+
+
+<a class="btn btn-primary" asp-controller="Image" asp-action="ImageUpload" role="button">Upload a Cat Image</a>
+<hr />
+
+@if (Model.Any())
+{
+    <div class="container">
+        <div class="row">
+            @foreach (var image in Model)
+            {
+                if (counter != 0 && counter % 3 == 0)
+                {
+                @:</div>
+                @:<div class="row my-4">
+                }
+
+                <div class="col-md-4">
+                    @Html.Hidden("imageId", image.Id)
+                    <img src="@image.Url" class="img-fluid" alt="Responsive image">
+                </div>
+
+                counter++;
+            }
+        </div>
+    </div>
+}
+else
+{
+    <h5 class="card-title">No uploaded cat images at the moment</h5>
+}
+
+

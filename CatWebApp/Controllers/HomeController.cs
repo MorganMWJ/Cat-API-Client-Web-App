@@ -10,9 +10,10 @@ namespace CatWebApp.Controllers
 {
     public class HomeController : Controller
     {
+
         public IActionResult Index()
         {
-            return View();
+            return RedirectToAction("ListPublicCatImages", "Image");
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

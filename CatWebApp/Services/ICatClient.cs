@@ -13,11 +13,13 @@ namespace CatWebApp.Services
 
         Task<List<CategoryViewModel>> GetCategoriesAsync();
 
-        Task<List<ImageViewModel>> GetPublicImagesAsync(int amount = 100);
+        Task<List<ImageViewModel>> GetPublicImagesAsync(int amount);
 
-        Task<List<ImageViewModel>> GetPublicImagesByCategoryAsync(int categoryId, int amount = 100);
+        Task<List<ImageViewModel>> GetPublicImagesAsync(int categoryId, int amount);
 
-        Task<List<ImageViewModel>> GetPublicImagesByBreedAsync(string breedId, int amount = 100);
+        Task<List<ImageViewModel>> GetPublicImagesAsync(string breedId, int amount);
+
+        Task<List<ImageViewModel>> GetPublicImagesAsync(string breedId, int categoryId, int amount);
 
         Task<List<ImageViewModel>> GetUploadedImagesAsync();
 

@@ -1,0 +1,15 @@
+﻿@model UploadFileModel
+
+
+@if (ViewBag.ErrorMessage != null)
+{
+    <div class="alert alert-danger" role="alert">
+        @ViewBag.ErrorMessage
+    </div>
+}
+
+
+<form method="post" enctype="multipart/form-data">
+    <input type="file" asp-for="ImageFile" />
+    <input type="submit" />
+</form>

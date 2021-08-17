@@ -26,7 +26,7 @@ namespace CatWebApp.Controllers
             return View(breeds);
         }
 
-        // GET: Breed/Details/5
+        [Route("breeds/{id}")]
         public async Task<IActionResult> Details(string id)
         {
             List<BreedViewModel> breeds = await _catClient.GetBreedsAsync();

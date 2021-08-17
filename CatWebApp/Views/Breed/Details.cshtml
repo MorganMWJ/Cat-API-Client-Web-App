@@ -1,0 +1,21 @@
+﻿@model BreedViewModel
+
+@{ ViewBag.Title = "Breed Detail";
+}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col" colspan="2">@Model.Name Breed Details</th>
+        </tr>
+    </thead>
+    <tbody>           
+        @foreach (var property in typeof(BreedViewModel).GetProperties())
+        {
+            <tr>
+                <th scope="row">>@(property.Name)</th>
+                <td>@(property.GetValue(Model, null))</td>              
+            </tr>
+        }        
+    </tbody>
+</table>

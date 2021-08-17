@@ -7,8 +7,10 @@
     foreach (var breed in Model)
     {
         <div class="card mb-3">
-            <div class="card-header">
+            <div class="card-header h1">
                 @breed.Name
+                <a class="btn btn-info" asp-controller="Breed" asp-action="Details" asp-route-id="@breed.Id" role="button">Info</a>
+                <a class="btn btn-success" asp-controller="Image"  role="button">Images</a>
             </div>
             <div class="card-body">
                 <h5 class="card-title">@breed.Temperament</h5>

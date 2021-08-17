@@ -1,0 +1,26 @@
+﻿@model List<ImageViewModel>
+
+@{ 
+    ViewBag.Title = "Public Cat Images";
+    int counter = 0;
+}
+
+<div class="container">
+    <div class="row">
+        @foreach (var image in Model)
+        {
+            if (counter != 0 && counter % 3 == 0)
+            {
+            @:</div>
+            @:<div class="row my-4">
+            }
+
+            <div class="col-md-4">
+                @Html.Hidden("imageId", image.Id)
+                <img src="@image.Url" class="img-fluid" alt="Responsive image">
+            </div>
+
+            counter++;
+        }
+    </div>
+</div>

@@ -83,7 +83,12 @@ namespace CatWebApp.Controllers
         [Route("images/uploaded")]
         public async Task<IActionResult> ListUploadedCatImages()
         {
-            List<ImageViewModel> catImages = await _catClient.GetUploadedImagesAsync();
+            if (TempData.ContainsKey("ErrorMessage"))
+            {
+                ViewBag.ErrorMessage = TempData["ErrorMessage"] as string;
+            }
+            
+            List <ImageViewModel> catImages = await _catClient.GetUploadedImagesAsync();
             return View(catImages);
         }
 
@@ -125,7 +130,7 @@ namespace CatWebApp.Controllers
                 HttpResponseMessage response = await _catClient.UploadImageAsync(form);
                 if (!response.IsSuccessStatusCode)
                 {
-                    ViewBag.ErrorMessage = $"Invalid format or content on file uploaded. {response.StatusCode} - {response.ReasonPhrase}";
+                    ViewBag.ErrorMessage = $"Invalid format or content on file uploaded. {(int)response.StatusCode} - {response.ReasonPhrase}";
                     return View(model);
                 }
 
@@ -140,7 +145,7 @@ namespace CatWebApp.Controllers
             HttpResponseMessage response = await _catClient.DeleteUploadedImage(id);
             if (!response.IsSuccessStatusCode)
             {
-                ViewBag.ErrorMessage = $"Image delete error. {response.StatusCode} - {response.ReasonPhrase}";
+                TempData["ErrorMessage"] = $"Image delete error. {(int)response.StatusCode} - {response.ReasonPhrase}";                 
             }
             return RedirectToAction(nameof(ListUploadedCatImages));
         }

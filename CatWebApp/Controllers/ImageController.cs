@@ -105,9 +105,6 @@ namespace CatWebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ImageUpload(UploadFileModel model)
         {
-            byte[] data;
-            ByteArrayContent bytes;
-            MultipartFormDataContent multiContent;
             if (model.ImageFile == null)
             {
                 ViewBag.ErrorMessage = "Please upload a file";
@@ -115,17 +112,17 @@ namespace CatWebApp.Controllers
             }
             else
             {
-
+                byte[] imageData;
                 using (var br = new BinaryReader(model.ImageFile.OpenReadStream()))
-                    data = br.ReadBytes((int)model.ImageFile.OpenReadStream().Length);
+                    imageData = br.ReadBytes((int)model.ImageFile.OpenReadStream().Length);
 
-                bytes = new ByteArrayContent(data);
+                //MultipartFormDataContent multiContent = new MultipartFormDataContent();
+                //multiContent.Add(new StreamContent(new MemoryStream(imageData)), "file", model.ImageFile.FileName);
+                MultipartFormDataContent form = new MultipartFormDataContent();                
+                form.Add(new ByteArrayContent(imageData, 0, imageData.Length), "file");
 
 
-                multiContent = new MultipartFormDataContent();
-
-                multiContent.Add(bytes, "file", model.ImageFile.FileName);
-                HttpResponseMessage response = await _catClient.UploadImageAsync(multiContent);
+                HttpResponseMessage response = await _catClient.UploadImageAsync(form);
                 if (!response.IsSuccessStatusCode)
                 {
                     ViewBag.ErrorMessage = $"Invalid format or content on file uploaded. {response.StatusCode} - {response.ReasonPhrase}";
@@ -137,27 +134,15 @@ namespace CatWebApp.Controllers
             return RedirectToAction(nameof(ListUploadedCatImages));
         }
 
-        // GET: Image/Delete/5
-        public async Task<IActionResult> Delete(int id)
+        [Route("images/uploaded/delete/{id}")]
+        public async Task<IActionResult> Delete(string id)
         {
-            return View();
-        }
-
-        // POST: Image/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
-        {
-            try
+            HttpResponseMessage response = await _catClient.DeleteUploadedImage(id);
+            if (!response.IsSuccessStatusCode)
             {
-                // TODO: Add delete logic here
-
-                return RedirectToAction(nameof(ListUploadedCatImages));
+                ViewBag.ErrorMessage = $"Image delete error. {response.StatusCode} - {response.ReasonPhrase}";
             }
-            catch
-            {
-                return View();
-            }
+            return RedirectToAction(nameof(ListUploadedCatImages));
         }
     }
 }

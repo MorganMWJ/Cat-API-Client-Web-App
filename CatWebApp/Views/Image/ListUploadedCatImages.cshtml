@@ -5,6 +5,12 @@
     int counter = 0;
 }
 
+@if (ViewBag.ErrorMessage != null)
+{
+    <div class="alert alert-danger" role="alert">
+        @ViewBag.ErrorMessage
+    </div>
+}
 
 <a class="btn btn-primary" asp-controller="Image" asp-action="ImageUpload" role="button">Upload a Cat Image</a>
 <hr />
@@ -24,6 +30,7 @@
                 <div class="col-md-4">
                     @Html.Hidden("imageId", image.Id)
                     <img src="@image.Url" class="img-fluid" alt="Responsive image">
+                    <a class="btn btn-sm btn-outline-danger" asp-controller="Image" asp-action="Delete" asp-route-id="@image.Id">Delete</a>
                 </div>
 
                 counter++;
